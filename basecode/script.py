@@ -108,8 +108,13 @@ def learnOLERegression(X,y):
     # Output: 
     # w = d x 1 
 	
-    # IMPLEMENT THIS METHOD                                                   
-    return w
+    # IMPLEMENT THIS METHOD  
+    xTx = np.dot(np.transpose(X),X)
+    invxTx = np.linalg.inv(xTx)
+    xTy =np.dot(np.transpose(X),y)
+
+    w = np.dot(invxTx, xTy)    
+return w
 
 def learnRidgeRegression(X,y,lambd):
     # Inputs:

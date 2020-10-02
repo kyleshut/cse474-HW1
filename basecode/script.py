@@ -35,6 +35,15 @@ def qdaLearn(X,y):
     # covmats - A list of k d x d learnt covariance matrices for each of the k classes
     
     # IMPLEMENT THIS METHOD
+	means=np.zeros((int(np.amax(y)), int(X.shape[1])))
+    covmats=[np.zeros((int(X.shape[1]), int(X.shape[1])))] * int(np.amax(y))
+    yArray = y.flatten()
+    i = 1
+    while i <= int(np.amax(y)):
+        means[i - 1,:]= np.mean(X[yArray == i], axis=0)
+        covmats[i - 1] = np.cov(np.transpose(X[yArray==i]))
+        i = i + 1 
+    means = np.transpose(means)
     return means,covmats
 
 def ldaTest(means,covmat,Xtest,ytest):
@@ -60,8 +69,37 @@ def qdaTest(means,covmats,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # IMPLEMENT THIS METHOD
+	N = int(Xtest.shape[0])
+    k = int(means.shape[1])
+    ypred=np.zeros((N,1))
+    d= np.zeros(k)
+    i = 0
+    while i < k: 
+       d[i] = 1/(np.power(2 * pi, Xtest.shape[1] * .5) * np.power(np.linalg.det(covmats[i]), .5)) 
+       covmats[i] = np.linalg.inv(covmats[i])
+       i = i + 1 
 
-    return acc,ypred
+    i = 0
+    j = 0
+    numAccurate = 0 
+    prediction = np.zeros((N,k))
+    while i < N:
+        while j < k:
+            prediction[i,j] =  d[j] * (np.exp(-.5 * np.dot(np.dot(np.transpose(np.transpose(Xtest[i,:]) - means[:, j]),covmats[j]),(np.transpose(Xtest[i,:]) - means[:, j])))) 
+            j = j + 1 
+        j = 0
+        i = i + 1 
+    i = 0 
+    while i < N:
+        maxVal=np.amax(prediction[i]) 
+        pred=list(prediction[i].flatten())
+        ypred[i] = pred.index(maxVal) + 1 
+        if ( ytest[i] == ypred[i]):
+            numAccurate = numAccurate + 1
+        i = i + 1 
+
+    acc = numAccurate/N    
+return acc,ypred
 
 def learnOLERegression(X,y):
     # Inputs:                                                         

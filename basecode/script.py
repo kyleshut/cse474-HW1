@@ -16,8 +16,13 @@ def ldaLearn(X,y):
     # Outputs
     # means - A d x k matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix 
-    
-    # IMPLEMENT THIS METHOD 
+
+    # IMPLEMENT THIS METHOD
+    means = np.array([])
+    for z in X:
+        m = np.mean(z)
+        np.append(means, m)
+    covmat = np.cov(y)
     return means,covmat
 
 def qdaLearn(X,y):
@@ -42,6 +47,7 @@ def ldaTest(means,covmat,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # IMPLEMENT THIS METHOD
+
     return acc,ypred
 
 def qdaTest(means,covmats,Xtest,ytest):
@@ -54,6 +60,7 @@ def qdaTest(means,covmats,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # IMPLEMENT THIS METHOD
+
     return acc,ypred
 
 def learnOLERegression(X,y):

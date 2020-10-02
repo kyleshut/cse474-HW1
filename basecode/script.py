@@ -140,6 +140,12 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
+    result = 0
+    n = len(ytest)
+    for x,y in zip(Xtest,ytest):
+        temp = (np.transpose(w)).dot(x)
+        result += (y - temp)**2
+    mse = result/n
     
     # IMPLEMENT THIS METHOD
     return mse

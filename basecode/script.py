@@ -85,7 +85,6 @@ def ldaTest(means,covmat,Xtest,ytest):
         i = i + 1 
 
     acc = numAccurate/N
-    acc = acc * 100
     return acc,ypred
 
 def qdaTest(means,covmats,Xtest,ytest):
@@ -128,7 +127,6 @@ def qdaTest(means,covmats,Xtest,ytest):
         i = i + 1 
 
     acc = numAccurate/N
-    acc = acc * 100
     return acc,ypred
 
 def learnOLERegression(X,y):

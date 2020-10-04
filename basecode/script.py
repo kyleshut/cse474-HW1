@@ -18,11 +18,15 @@ def ldaLearn(X,y):
     # covmat - A single d x d learnt covariance matrix 
 
     # IMPLEMENT THIS METHOD
-    means = np.array([])
-    for z in X:
-        m = np.mean(z)
-        np.append(means, m)
-    covmat = np.cov(y)
+    means = np.zeros((int(np.amax(y)), int(X.shape[1])))
+    covmat = np.zeros((int(X.shape[1]), int(X.shape[1])))
+    yArray = y.flatten()
+    i = 1
+    while i <= int(np.amax(y)):
+        means[i - 1,:]= np.mean(X[yArray == i], axis=0)
+        i = i + 1 
+    covmat = np.cov(np.transpose(X))
+    means = np.transpose(means)
     return means,covmat
 
 def qdaLearn(X,y):
@@ -35,7 +39,7 @@ def qdaLearn(X,y):
     # covmats - A list of k d x d learnt covariance matrices for each of the k classes
     
     # IMPLEMENT THIS METHOD
-	means=np.zeros((int(np.amax(y)), int(X.shape[1])))
+    means=np.zeros((int(np.amax(y)), int(X.shape[1])))
     covmats=[np.zeros((int(X.shape[1]), int(X.shape[1])))] * int(np.amax(y))
     yArray = y.flatten()
     i = 1
@@ -56,7 +60,32 @@ def ldaTest(means,covmat,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # IMPLEMENT THIS METHOD
+    N = int(Xtest.shape[0])
+    k = int(means.shape[1])
+    ypred=np.zeros((N,1))
+    d = 1/(np.power(2 * pi, Xtest.shape[1] * .5) * np.power(np.linalg.det(covmat), .5)) 
+    invcovmat = np.linalg.inv(covmat)
+    i = 0
+    j = 0
+    numAccurate = 0 
+    prediction = np.zeros((N,k))
+    while i < N:
+        while j < k:
+            prediction[i,j] = d * np.exp(-.5 * np.dot(np.dot(np.transpose(np.transpose(Xtest[i,:]) - means[:, j]),invcovmat),(np.transpose(Xtest[i,:]) - means[:, j]))) 
+            j = j + 1 
+        j = 0
+        i = i + 1 
+    i = 0 
+    while i < N:
+        maxVal=np.amax(prediction[i]) 
+        pred=list(prediction[i].flatten())
+        ypred[i] = pred.index(maxVal) + 1 
+        if ( ytest[i] == ypred[i]):
+            numAccurate = numAccurate + 1
+        i = i + 1 
 
+    acc = numAccurate/N
+    acc = acc * 100
     return acc,ypred
 
 def qdaTest(means,covmats,Xtest,ytest):
@@ -98,8 +127,9 @@ def qdaTest(means,covmats,Xtest,ytest):
             numAccurate = numAccurate + 1
         i = i + 1 
 
-    acc = numAccurate/N    
-return acc,ypred
+    acc = numAccurate/N
+    acc = acc * 100
+    return acc,ypred
 
 def learnOLERegression(X,y):
     # Inputs:                                                         
@@ -112,9 +142,8 @@ def learnOLERegression(X,y):
     xTx = np.dot(np.transpose(X),X)
     invxTx = np.linalg.inv(xTx)
     xTy =np.dot(np.transpose(X),y)
-
     w = np.dot(invxTx, xTy)    
-return w
+    return w
 
 def learnRidgeRegression(X,y,lambd):
     # Inputs:
@@ -146,8 +175,7 @@ def testOLERegression(w,Xtest,ytest):
         temp = (np.transpose(w)).dot(x)
         result += (y - temp)**2
     mse = result/n
-    
-    # IMPLEMENT THIS METHOD
+    mse = float(mse)
     return mse
 
 def regressionObjVal(w, X, y, lambd):
@@ -167,6 +195,12 @@ def mapNonLinear(x,p):
     # Xp - (N x (p+1)) 
 	
     # IMPLEMENT THIS METHOD
+    p = p + 1 
+    Xp = np.zeros((int(x.shape[0]), p))
+    i = 0
+    while i < p:
+        Xp[:, i] = np.power(x, i)
+        i = i + 1 
     return Xp
 
 # Main script

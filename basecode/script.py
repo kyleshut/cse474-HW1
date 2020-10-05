@@ -171,7 +171,7 @@ def testOLERegression(w,Xtest,ytest):
     n = len(ytest)
     for x,y in zip(Xtest,ytest):
         temp = (np.transpose(w)).dot(x)
-        result += (y - temp)**2
+        result += (y - temp)*(y - temp)
     mse = result/n
     mse = float(mse)
     return mse
@@ -182,7 +182,14 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda                                                                  
 
-    # IMPLEMENT THIS METHOD                                             
+    # IMPLEMENT THIS METHOD
+    Xw = np.dot(X,w)
+    wTw = np.dot(np.transpose(w),w)
+    ymXw = np.subtract(y,Xw)
+    error = 1/2*np.dot(np.transpose(ymXw),ymXw) + 1/2*lambd*wTw
+    error_grad = np.gradient(error)
+
+
     return error, error_grad
 
 def mapNonLinear(x,p):

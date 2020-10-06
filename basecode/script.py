@@ -183,11 +183,9 @@ def regressionObjVal(w, X, y, lambd):
     # lambda                                                                  
 
     # IMPLEMENT THIS METHOD
-    Xw = np.dot(X,w)
-    wTw = np.dot(np.transpose(w),w)
-    ymXw = np.subtract(y,Xw)
-    error = 1/2*np.dot(np.transpose(ymXw),ymXw) + 1/2*lambd*wTw
-    error_grad = np.gradient(error)
+    y = y.flatten()
+    error =  .5 * (np.sum((y-np.dot(w, np.transpose(X))) * (y - np.dot(X,w))) + lambd * np.dot(np.transpose(w),w))
+    error_grad = np.dot(np.dot(np.transpose(X), X), w) - np.dot(np.transpose(X), y) + lambd * w   
 
 
     return error, error_grad

@@ -187,8 +187,8 @@ def regressionObjVal(w, X, y, lambd):
     #error_grad = (X.T*X)W - X.T*y + lambd*w
     y = y.flatten()
     error =  .5 * (np.sum((y-np.dot(w, np.transpose(X))) * (y - np.dot(X,w))) + lambd * np.dot(np.transpose(w),w))
-    error_grad = np.dot(np.dot(np.transpose(X), X), w) - np.dot(np.transpose(X), y) + lambd * w   
-
+    error_grad = np.dot(np.dot(np.transpose(X), X), w) - np.dot(np.transpose(X), y) + lambd * w
+	error_grad = error_grad.flatten()
 
     return error, error_grad
 

@@ -16,8 +16,17 @@ def ldaLearn(X,y):
     # Outputs
     # means - A d x k matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix 
-    
-    # IMPLEMENT THIS METHOD 
+
+    # IMPLEMENT THIS METHOD
+    means = np.zeros((int(np.amax(y)), int(X.shape[1])))
+    covmat = np.zeros((int(X.shape[1]), int(X.shape[1])))
+    yArray = y.flatten()
+    i = 1
+    while i <= int(np.amax(y)):
+        means[i - 1,:]= np.mean(X[yArray == i], axis=0)
+        i = i + 1 
+    covmat = np.cov(np.transpose(X))
+    means = np.transpose(means)
     return means,covmat
 
 def qdaLearn(X,y):
@@ -51,6 +60,31 @@ def ldaTest(means,covmat,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # IMPLEMENT THIS METHOD
+    N = int(Xtest.shape[0])
+    k = int(means.shape[1])
+    ypred=np.zeros((N,1))
+    d = 1/(np.power(2 * pi, Xtest.shape[1] * .5) * np.power(np.linalg.det(covmat), .5)) 
+    invcovmat = np.linalg.inv(covmat)
+    i = 0
+    j = 0
+    numAccurate = 0 
+    prediction = np.zeros((N,k))
+    while i < N:
+        while j < k:
+            prediction[i,j] = d * np.exp(-.5 * np.dot(np.dot(np.transpose(np.transpose(Xtest[i,:]) - means[:, j]),invcovmat),(np.transpose(Xtest[i,:]) - means[:, j]))) 
+            j = j + 1 
+        j = 0
+        i = i + 1 
+    i = 0 
+    while i < N:
+        maxVal=np.amax(prediction[i]) 
+        pred=list(prediction[i].flatten())
+        ypred[i] = pred.index(maxVal) + 1 
+        if ( ytest[i] == ypred[i]):
+            numAccurate = numAccurate + 1
+        i = i + 1 
+
+    acc = numAccurate/N
     return acc,ypred
 
 def qdaTest(means,covmats,Xtest,ytest):
@@ -102,7 +136,11 @@ def learnOLERegression(X,y):
     # Output: 
     # w = d x 1 
 	
-    # IMPLEMENT THIS METHOD                                                   
+    # IMPLEMENT THIS METHOD  
+    xTx = np.dot(np.transpose(X),X)
+    invxTx = np.linalg.inv(xTx)
+    xTy =np.dot(np.transpose(X),y)
+    w = np.dot(invxTx, xTy)    
     return w
 
 def learnRidgeRegression(X,y,lambd):
@@ -113,7 +151,13 @@ def learnRidgeRegression(X,y,lambd):
     # Output:                                                                  
     # w = d x 1                                                                
 
-    # IMPLEMENT THIS METHOD                                                   
+    # IMPLEMENT THIS METHOD      
+    d=X.shape[1]
+    xTx = np.dot(np.transpose(X),X)
+    xTy =np.dot(np.transpose(X),y)
+    lambdaI = lambd * np.identity(d)
+    invxTxlambdaI = np.linalg.inv(xTx + lambdaI)
+    w = np.dot(invxTxlambdaI, xTy)   
     return w
 
 def testOLERegression(w,Xtest,ytest):
@@ -123,8 +167,13 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
-    
-    # IMPLEMENT THIS METHOD
+    result = 0
+    n = len(ytest)
+    for x,y in zip(Xtest,ytest):
+        temp = (np.transpose(w)).dot(x)
+        result += (y - temp)*(y - temp)
+    mse = result/n
+    mse = float(mse)
     return mse
 
 def regressionObjVal(w, X, y, lambd):
@@ -133,7 +182,11 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda                                                                  
 
-    # IMPLEMENT THIS METHOD                                             
+    # IMPLEMENT THIS METHOD
+    y = y.flatten()
+    error =  .5 * (np.sum((y-np.dot(w, np.transpose(X))) * (y - np.dot(X,w))) + lambd * np.dot(np.transpose(w),w))
+    error_grad = np.dot(np.dot(np.transpose(X), X), w) - np.dot(np.transpose(X), y) + lambd * w
+    error_grad = error_grad.flatten()
     return error, error_grad
 
 def mapNonLinear(x,p):
@@ -144,6 +197,12 @@ def mapNonLinear(x,p):
     # Xp - (N x (p+1)) 
 	
     # IMPLEMENT THIS METHOD
+    p = p + 1 
+    Xp = np.zeros((int(x.shape[0]), p))
+    i = 0
+    while i < p:
+        Xp[:, i] = np.power(x, i)
+        i = i + 1 
     return Xp
 
 # Main script
@@ -260,7 +319,7 @@ plt.show()
 
 # Problem 5
 pmax = 7
-lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
+lambda_opt = lambdas[np.argmin(mses3)]# REPLACE THIS WITH lambda_opt estimated from Problem 3
 mses5_train = np.zeros((pmax,2))
 mses5 = np.zeros((pmax,2))
 for p in range(pmax):

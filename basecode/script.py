@@ -97,7 +97,7 @@ def qdaTest(means,covmats,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # IMPLEMENT THIS METHOD
-	N = int(Xtest.shape[0])
+    N = int(Xtest.shape[0])
     k = int(means.shape[1])
     ypred=np.zeros((N,1))
     d= np.zeros(k)
@@ -183,13 +183,10 @@ def regressionObjVal(w, X, y, lambd):
     # lambda                                                                  
 
     # IMPLEMENT THIS METHOD
-    #error = .5 * (((y - w*X).T * (y - w)) + lambd(w.T*w))
-    #error_grad = (X.T*X)W - X.T*y + lambd*w
     y = y.flatten()
     error =  .5 * (np.sum((y-np.dot(w, np.transpose(X))) * (y - np.dot(X,w))) + lambd * np.dot(np.transpose(w),w))
     error_grad = np.dot(np.dot(np.transpose(X), X), w) - np.dot(np.transpose(X), y) + lambd * w
-	error_grad = error_grad.flatten()
-
+    error_grad = error_grad.flatten()
     return error, error_grad
 
 def mapNonLinear(x,p):
@@ -322,7 +319,7 @@ plt.show()
 
 # Problem 5
 pmax = 7
-lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
+lambda_opt = lambdas[np.argmin(mses3)]# REPLACE THIS WITH lambda_opt estimated from Problem 3
 mses5_train = np.zeros((pmax,2))
 mses5 = np.zeros((pmax,2))
 for p in range(pmax):

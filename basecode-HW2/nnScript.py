@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
-
+import random
 
 def initializeWeights(n_in, n_out):
     """
@@ -58,7 +58,53 @@ def preprocess():
 
     # Feature selection
     # Your code here.
+    prepTrainLabel = np.zeros((0,1), dtype=np.int64)
+    prepTrainData = np.zeros((0,784), dtype=np.float64)
+    i = 0
+    while i < 10:
+      matIndexData = mat.get('train' + str(i))
+      tempArray = np.full((matIndexData.shape[0], 1), i)
+      prepTrainLabel = np.append(prepTrainLabel, tempArray, axis = 0)
+      prepTrainData = np.append(prepTrainData, matIndexData, axis = 0)
+      i = i + 1
+    i = 0
 
+    duplicatedFeature = np.all(prepTrainData == prepTrainData[0,:],axis=0)
+    duplicates = np.where(duplicatedFeature == True)
+    prepTrainData = np.delete(prepTrainData, duplicates[0], axis=1)
+    sample = random.sample(range(60000), 60000)
+    train_data = np.zeros((50000, prepTrainData.shape[1]), dtype=np.float64)
+    train_label = np.zeros((50000, 1), dtype=np.int64)
+    validation_data = np.zeros((10000, prepTrainData.shape[1]), dtype=np.float64)
+    validation_label = np.zeros((10000,1),dtype=np.int64)
+    test_data = np.zeros((0,784), dtype=np.float64) 
+    test_label = np.zeros((0,1), dtype=np.int64)
+
+    while i < 50000: 
+      train_data[i,:] = prepTrainData[sample[i],:]
+      train_label[i,0] = prepTrainLabel[sample[i],0]
+      i = i + 1
+    i = 0
+    while i < 10000:
+      validation_data[i, :] = prepTrainData[sample[i + 50000],:]
+      validation_label[i, 0] = prepTrainLabel[sample[i + 50000],0]
+      i = i + 1    
+    i = 0
+    while i < 10:
+      matIndexData = mat.get('test' + str(i))
+      tempArray = np.full((matIndexData.shape[0], 1), i)
+      test_label = np.append(test_label, tempArray, axis = 0)
+      test_data = np.append(test_data, matIndexData, axis = 0)
+      i = i + 1
+    test_data = np.delete(test_data,duplicates[0],axis=1)
+    
+    train_data = train_data.astype(np.float64)
+    test_data = test_data.astype(np.float64)
+    validation_data = validation_data.astype(np.float64)  
+
+    train_data = train_data / 255.0 
+    test_data = test_data / 255.0 
+    validation_data = validation_data / 255.0     
     print('preprocess done')
 
     return train_data, train_label, validation_data, validation_label, test_data, test_label

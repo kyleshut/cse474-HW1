@@ -24,8 +24,8 @@ def initializeWeights(n_in, n_out):
 def sigmoid(z):
     """# Notice that z can be a scalar, a vector or a matrix
     # return the sigmoid of input z"""
-
-    return  # your code here
+    sig = 1/ (1 + np.exp(-z))
+    return sig # your code here
 
 
 def preprocess():

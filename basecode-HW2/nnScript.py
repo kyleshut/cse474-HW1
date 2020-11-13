@@ -24,8 +24,9 @@ def initializeWeights(n_in, n_out):
 def sigmoid(z):
     """# Notice that z can be a scalar, a vector or a matrix
     # return the sigmoid of input z"""
-    sig = 1/ (1 + np.exp(-z))
-    return sig # your code here
+    # your code here
+    sig = np.sum(1 / (1 + np.exp(-z)))
+    return sig
 
 
 def preprocess():
@@ -190,7 +191,23 @@ def nnPredict(w1, w2, data):
 
     labels = np.array([])
     # Your code here
-
+    for d in data:
+        # Hidden Layer
+        hiddenLayer = np.empty(w1.shape, dtype=np.float64)
+        for j in range(0, w1.shape[1]):
+            tempList = []
+            for i in range(0, w1.shape[0]):
+                tempList.append(d[i] * w1[i, j])
+            np.append(hiddenLayer, np.sum(np.array(tempList)))
+        # Output Layer
+        outputLayer = np.empty(w1.shape, dtype=np.float64)
+        for j in range(0, w2.shape[1]):
+            tempList = []
+            for i in range(0, w1.shape[0]):
+                tempList.append(d[i] * w2[i, j])
+            np.append(outputLayer, sigmoid(np.array(tempList)))
+        # Index of prediction from the output layer
+        np.append(labels, np.argmax(outputLayer))
     return labels
 
 

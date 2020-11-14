@@ -156,19 +156,34 @@ def nnObjFunction(params, *args):
     obj_val = 0
 
     # Your code here
-    #
-    #
-    #
-    #
-    #
+    n = training_data.shape[0]
+    bias = np.full((n, 1), 1)
+    training_data = np.append(training_data, bias,axis=1)
+    
 
+    #input -> hidden
+    z = np.append(sigmoid(np.dot(training_data, w1.transpose())), bias, axis=1)
+    #hidden -> output
+    o = sigmoid(np.dot(z, w2.transpose()))   
 
-
-    # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
-    # you would use code similar to the one below to create a flat array
-    # obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
-    obj_grad = np.array([])
-
+    y = np.zeros(o.shape, dtype=np.float64)
+    i = 0
+    while i < n:
+      y[i, training_label[i][0]] = 1
+      i = i + 1 
+    i = 0
+    
+    grad_w1 = np.zeros(w1.shape,dtype=np.float64)
+    grad_w2 = np.zeros(w2.shape,dtype=np.float64)
+    
+    grad_w1 += np.dot(np.multiply(np.multiply(1-z[:,:n_hidden], z[:,:n_hidden]), np.dot((o-y),w2[:,:n_hidden])).transpose(), training_data)
+    grad_w2 = np.dot(( o - y ).transpose(), z)
+    obj_val = -np.multiply((1.0/n), np.sum(y * np.log(o) + (1.0-y)*np.log(1.0-o))) + ((np.sum(np.power(w1, 2.0)) + np.sum(np.power(w2, 2.0))) * (lambdaval / (2.0*n)))
+  
+    grad_w1 = ((grad_w1 + (w1 * lambdaval)) / n) 
+    grad_w2 = ((grad_w2 + (w2 * lambdaval)) / n)
+    obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
+    
     return (obj_val, obj_grad)
 
 
@@ -189,25 +204,18 @@ def nnPredict(w1, w2, data):
     % Output: 
     % label: a column vector of predicted labels"""
 
-    labels = np.array([])
-    # Your code here
-    for d in data:
-        # Hidden Layer
-        hiddenLayer = np.empty(w1.shape, dtype=np.float64)
-        for j in range(0, w1.shape[1]):
-            tempList = []
-            for i in range(0, w1.shape[0]):
-                tempList.append(d[i] * w1[i, j])
-            np.append(hiddenLayer, np.sum(np.array(tempList)))
-        # Output Layer
-        outputLayer = np.empty(w1.shape, dtype=np.float64)
-        for j in range(0, w2.shape[1]):
-            tempList = []
-            for i in range(0, w1.shape[0]):
-                tempList.append(d[i] * w2[i, j])
-            np.append(outputLayer, sigmoid(np.array(tempList)))
-        # Index of prediction from the output layer
-        np.append(labels, np.argmax(outputLayer))
+    n = data.shape[0]
+    labels = np.zeros((n,1), dtype=np.float64)
+    data = np.append(data, np.full((n,1), 1, dtype=np.float64), axis=1)
+    bias = [1]
+    d = 0
+    while d < n:             
+        z = np.append(sigmoid(np.dot(data[d][:], w1.transpose())),bias,axis=0)
+
+        o = sigmoid(sigmoid(sigmoid(np.dot(z, w2.transpose())))) 
+        
+        labels[d][0] = np.argmax(o)
+        d = d + 1    
     return labels
 
 

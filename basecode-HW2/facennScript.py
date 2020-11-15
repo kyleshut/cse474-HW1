@@ -4,6 +4,7 @@ Comparing single layer MLP with deep MLP (using TensorFlow)
 
 import numpy as np
 import pickle
+import scipy as sp
 
 # Do not change this
 def initializeWeights(n_in,n_out):
@@ -17,7 +18,7 @@ def initializeWeights(n_in,n_out):
                             
     # Output: 
     # W: matrix of random initial weights with size (n_out x (n_in + 1))"""
-    epsilon = sqrt(6) / sqrt(n_in + n_out + 1);
+    epsilon = sp.sqrt(6) / sp.sqrt(n_in + n_out + 1);
     W = (np.random.rand(n_out, n_in + 1)*2* epsilon) - epsilon;
     return W
 
@@ -70,7 +71,7 @@ args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 #Train Neural Network using fmin_cg or minimize from scipy,optimize module. Check documentation for a working example
 opts = {'maxiter' :50}    # Preferred value.
 
-nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args,method='CG', options=opts)
+nn_params = sp.minimize(nnObjFunction, initialWeights, jac=True, args=args,method='CG', options=opts)
 params = nn_params.get('x')
 #Reshape nnParams from 1D vector into w1 and w2 matrices
 w1 = params[0:n_hidden * (n_input + 1)].reshape( (n_hidden, (n_input + 1)))

@@ -25,7 +25,7 @@ def sigmoid(z):
     """# Notice that z can be a scalar, a vector or a matrix
     # return the sigmoid of input z"""
     # your code here
-    sig = np.sum(1 / (1 + np.exp(-z)))
+    sig = 1 / (1 + np.exp(-z))
     return sig
 
 
@@ -158,12 +158,12 @@ def nnObjFunction(params, *args):
     # Your code here
     n = training_data.shape[0]
     bias = np.full((n, 1), 1)
-    training_data = np.append(training_data, bias,axis=1)
-    
+    training_data = np.append(training_data, bias, axis=1)
 
-    #input -> hidden
+    # input -> hidden
+    a = w1.transpose()
     z = np.append(sigmoid(np.dot(training_data, w1.transpose())), bias, axis=1)
-    #hidden -> output
+    # hidden -> output
     o = sigmoid(np.dot(z, w2.transpose()))   
 
     y = np.zeros(o.shape, dtype=np.float64)
@@ -176,13 +176,13 @@ def nnObjFunction(params, *args):
     grad_w1 = np.zeros(w1.shape,dtype=np.float64)
     grad_w2 = np.zeros(w2.shape,dtype=np.float64)
     
-    grad_w1 += np.dot(np.multiply(np.multiply(1-z[:,:n_hidden], z[:,:n_hidden]), np.dot((o-y),w2[:,:n_hidden])).transpose(), training_data)
+    grad_w1 += np.dot(np.multiply(np.multiply(1-z[:,:n_hidden], z[:,:n_hidden]), np.dot((o-y), w2[:,:n_hidden])).transpose(), training_data)
     grad_w2 = np.dot(( o - y ).transpose(), z)
     obj_val = -np.multiply((1.0/n), np.sum(y * np.log(o) + (1.0-y)*np.log(1.0-o))) + ((np.sum(np.power(w1, 2.0)) + np.sum(np.power(w2, 2.0))) * (lambdaval / (2.0*n)))
   
     grad_w1 = ((grad_w1 + (w1 * lambdaval)) / n) 
     grad_w2 = ((grad_w2 + (w2 * lambdaval)) / n)
-    obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
+    obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()), 0)
     
     return (obj_val, obj_grad)
 
@@ -206,11 +206,11 @@ def nnPredict(w1, w2, data):
 
     n = data.shape[0]
     labels = np.zeros((n,1), dtype=np.float64)
-    data = np.append(data, np.full((n,1), 1, dtype=np.float64), axis=1)
+    data = np.append(data, np.full((n, 1), 1, dtype=np.float64), axis=1)
     bias = [1]
     d = 0
     while d < n:             
-        z = np.append(sigmoid(np.dot(data[d][:], w1.transpose())),bias,axis=0)
+        z = np.append(sigmoid(np.dot(data[d][:], w1.transpose())), bias, axis=0)
 
         o = sigmoid(sigmoid(sigmoid(np.dot(z, w2.transpose())))) 
         

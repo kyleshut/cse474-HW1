@@ -3,6 +3,7 @@ from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
 import random
+import pickle
 
 def initializeWeights(n_in, n_out):
     """
@@ -161,23 +162,20 @@ def nnObjFunction(params, *args):
     training_data = np.append(training_data, bias, axis=1)
 
     # input -> hidden
-    a = w1.transpose()
     z = np.append(sigmoid(np.dot(training_data, w1.transpose())), bias, axis=1)
     # hidden -> output
-    o = sigmoid(np.dot(z, w2.transpose()))   
+    o = sigmoid(np.dot(z, w2.transpose()))
 
     y = np.zeros(o.shape, dtype=np.float64)
     i = 0
     while i < n:
       y[i, training_label[i][0]] = 1
-      i = i + 1 
-    i = 0
+      i = i + 1
     
     grad_w1 = np.zeros(w1.shape,dtype=np.float64)
-    grad_w2 = np.zeros(w2.shape,dtype=np.float64)
     
     grad_w1 += np.dot(np.multiply(np.multiply(1-z[:,:n_hidden], z[:,:n_hidden]), np.dot((o-y), w2[:,:n_hidden])).transpose(), training_data)
-    grad_w2 = np.dot(( o - y ).transpose(), z)
+    grad_w2 = np.dot((o - y).transpose(), z)
     obj_val = -np.multiply((1.0/n), np.sum(y * np.log(o) + (1.0-y)*np.log(1.0-o))) + ((np.sum(np.power(w1, 2.0)) + np.sum(np.power(w2, 2.0))) * (lambdaval / (2.0*n)))
   
     grad_w1 = ((grad_w1 + (w1 * lambdaval)) / n) 
@@ -215,13 +213,13 @@ def nnPredict(w1, w2, data):
         o = sigmoid(sigmoid(sigmoid(np.dot(z, w2.transpose())))) 
         
         labels[d][0] = np.argmax(o)
-        d = d + 1    
+        d = d + 1
     return labels
 
 
 """**************Neural Network Script Starts here********************************"""
-
 train_data, train_label, validation_data, validation_label, test_data, test_label = preprocess()
+features = np.append(np.append(train_data, validation_data, axis=0), test_data, axis=0)
 
 #  Train Neural Network
 
@@ -229,7 +227,7 @@ train_data, train_label, validation_data, validation_label, test_data, test_labe
 n_input = train_data.shape[1]
 
 # set the number of nodes in hidden unit (not including bias unit)
-n_hidden = 50
+n_hidden = 100
 
 # set the number of nodes in output unit
 n_class = 10
@@ -242,7 +240,7 @@ initial_w2 = initializeWeights(n_hidden, n_class)
 initialWeights = np.concatenate((initial_w1.flatten(), initial_w2.flatten()), 0)
 
 # set the regularization hyper-parameter
-lambdaval = 0
+lambdaval = 5
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
@@ -280,3 +278,11 @@ predicted_label = nnPredict(w1, w2, test_data)
 # find the accuracy on Validation Dataset
 
 print('\n Test set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+
+
+
+output = open('params.pickle', 'wb')
+n_hidden = 100
+outdict = {'selected_features': features, 'n_hidden': n_hidden, 'w1': w1, 'w2': w2, 'optimal_lambda': lambdaval}
+pickle.dump(outdict, output)
+
